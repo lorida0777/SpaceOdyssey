@@ -5,8 +5,8 @@ from kivy.core.audio import SoundLoader
 from kivy.lang import Builder
 from kivy.uix.relativelayout import RelativeLayout
 
-Config.set('graphics', 'width', '400')
 Config.set('graphics', 'width', '900')
+Config.set('graphics', 'height', '600')
 
 from kivy import platform
 from kivy.core.window import Window
@@ -82,22 +82,41 @@ class MainWidget(RelativeLayout):
             self.keyboard.bind(on_key_up=self.on_keyboard_up)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
 
-        self.sound_space_odyssey.play()
+        if self.sound_space_odyssey:
+            self.sound_space_odyssey.play()
 
     def init_audio(self):
-        self.sound_begin = SoundLoader.load('audio/begin.wav')
-        self.sound_space_odyssey = SoundLoader.load('audio/space odyssey.wav')
-        self.sound_bip = SoundLoader.load('audio/bip.wav')
-        self.sound_game_over = SoundLoader.load('audio/game over.wav')
-        self.sound_music1 = SoundLoader.load('audio/faded.wav')
-        self.sound_restart = SoundLoader.load('audio/restart.wav')
+        # Load audio files with error handling
+        try:
+            self.sound_begin = SoundLoader.load('audio/begin.wav')
+            self.sound_space_odyssey = SoundLoader.load('audio/space odyssey.wav')
+            self.sound_bip = SoundLoader.load('audio/bip.wav')
+            self.sound_game_over = SoundLoader.load('audio/game over.wav')
+            self.sound_music1 = SoundLoader.load('audio/faded.wav')
+            self.sound_restart = SoundLoader.load('audio/restart.wav')
 
-        self.sound_music1.volume = .6
-        self.sound_begin.volume = .50
-        self.sound_space_odyssey.volume = .50
-        self.sound_bip.volume = .60
-        self.sound_game_over.volume = .50
-        self.sound_restart.volume = .50
+            # Set volumes only if sounds loaded successfully
+            if self.sound_music1:
+                self.sound_music1.volume = .6
+            if self.sound_begin:
+                self.sound_begin.volume = .50
+            if self.sound_space_odyssey:
+                self.sound_space_odyssey.volume = .50
+            if self.sound_bip:
+                self.sound_bip.volume = .60
+            if self.sound_game_over:
+                self.sound_game_over.volume = .50
+            if self.sound_restart:
+                self.sound_restart.volume = .50
+        except Exception as e:
+            print(f"Warning: Could not load audio files: {e}")
+            # Set all sounds to None if loading fails
+            self.sound_begin = None
+            self.sound_space_odyssey = None
+            self.sound_bip = None
+            self.sound_game_over = None
+            self.sound_music1 = None
+            self.sound_restart = None
 
     def reset_game(self):
         self.current_offset_y = 0
@@ -105,7 +124,7 @@ class MainWidget(RelativeLayout):
         self.current_offset_x = 0
         self.current_speed_x = 0
         self.tiles_coordinates = []
-        self.score_txt = f"SCRORE: {self.current_y_loop}"
+        self.score_txt = f"SCORE: {self.current_y_loop}"
         self.pre_fill_tiles_coordinates()
         self.generate_tiles_coordinates()
         self.state_game_over = False
@@ -275,30 +294,35 @@ class MainWidget(RelativeLayout):
             while self.current_offset_y >= spacing_y:
                 self.current_offset_y -= spacing_y
                 self.current_y_loop += 1
-                self.score_txt = f"SCRORE: {self.current_y_loop}"
+                self.score_txt = f"SCORE: {self.current_y_loop}"
                 self.generate_tiles_coordinates()
             speed_x = self.current_speed_x * self.width / 100
             self.current_offset_x += speed_x*time_factor
 
-        if not self.check_ship_collisions() and not self.state_game_over:
+        if self.check_ship_collisions() and not self.state_game_over:
             self.state_game_over = True
             self.menu_title = "G  A  M  E    O  V  E  R"
             self.menu_button_title = "R E S T A R T"
             self.menu_widget.opacity = 1
-            self.sound_music1.stop()
-            self.sound_bip.play()
+            if self.sound_music1:
+                self.sound_music1.stop()
+            if self.sound_bip:
+                self.sound_bip.play()
             Clock.schedule_once(self.play_voice_game_over, 1)
 
     def play_voice_game_over(self, dt): #
-        if self.state_game_over:
+        if self.state_game_over and self.sound_game_over:
             self.sound_game_over.play()
 
     def on_menu_button_pressed(self): # gestion bouton
         if self.state_game_over:
-            self.sound_restart.play()
+            if self.sound_restart:
+                self.sound_restart.play()
         else:
-            self.sound_begin.play()
-        self.sound_music1.play()
+            if self.sound_begin:
+                self.sound_begin.play()
+        if self.sound_music1:
+            self.sound_music1.play()
         self.reset_game()
         self.state_game_has_started = True
         self.menu_widget.opacity = 0

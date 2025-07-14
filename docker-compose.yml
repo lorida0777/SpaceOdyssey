@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  space-odyssey:
+    build: .
+    container_name: space-odyssey-game
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+    environment:
+      - DISPLAY=${DISPLAY}
+      - KIVY_WINDOW=sdl2
+    network_mode: host
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
