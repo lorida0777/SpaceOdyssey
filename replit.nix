@@ -1,0 +1,32 @@
+{ pkgs }: {
+  deps = [
+    pkgs.python310Full
+    pkgs.replitPackages.prybar-python310
+    pkgs.replitPackages.stderred
+    pkgs.python310Packages.pip
+    pkgs.python310Packages.setuptools
+    pkgs.xorg.libX11
+    pkgs.xorg.libXext
+    pkgs.xorg.libXrender
+    pkgs.xorg.libXinerama
+    pkgs.xorg.libXrandr
+    pkgs.xorg.libXdamage
+    pkgs.xorg.libXcomposite
+    pkgs.xorg.libXcursor
+    pkgs.xorg.libXfixes
+    pkgs.xorg.libXi
+    pkgs.xorg.libXxf86vm
+    pkgs.libGL
+    pkgs.libGLU
+    pkgs.freetype
+    pkgs.fontconfig
+    pkgs.glib
+    pkgs.gstreamer
+    pkgs.gst_all_1.gstreamer
+    pkgs.gst_all_1.gst-plugins-base
+    pkgs.gst_all_1.gst-plugins-good
+    pkgs.gst_all_1.gst-plugins-bad
+    pkgs.gst_all_1.gst-plugins-ugly
+    pkgs.alsaLib
+  ];
+}
